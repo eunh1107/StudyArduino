@@ -93,9 +93,7 @@
 #define NOTE_DS8 4978
 
 
-int arraySize = 8;
-
-#define BEEP_NUM  2000
+#define BEEP_NUM  2000 // int BEEP_NUM = 2000;
 
 int PinTrig = 2;
 int PinEcho = 3;
@@ -110,7 +108,7 @@ void setup()
 void loop()
 {
   tone(PinSpk, BEEP_NUM, 30);
-  delay(USensor()*18);
+  delay(USensor()*20);
 }
 
 int USensor() {

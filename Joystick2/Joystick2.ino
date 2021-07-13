@@ -1,71 +1,87 @@
-#define BEEP_NUM  2000
-  int blue=3;
-  int green = 5;
-  int red   = 10;
-  int PinSpk  = 9;
-void setup() {
+#include "pitches.h"
 
-  
-  pinMode(6, INPUT_PULLUP);    // 버튼 핀을 읽기 모드로 
-  Serial.begin(9600);
-  pinMode(blue, OUTPUT);
-  pinMode(green, OUTPUT);
-  pinMode(red, OUTPUT);
-  
+int PIN_X     = A0;
+int PIN_Y     = A1;
+int PIN_LEDG  = 2;
+int PIN_LEDB  = 3;
+int PIN_LEDR  = 4;
+int PIN_PUSH  = 6;
+int PIN_SPK   = 9;
+
+int arraySize = 8;
+int melody[] =
+{ 
+  NOTE_C4, NOTE_D4, NOTE_E4, NOTE_F4,
+  NOTE_G4, NOTE_A4, NOTE_B4, NOTE_C5 
+};
+
+int noteDurations[] ={ 8, 8, 6, 6, 4, 4, 4, 4 };
+
+
+void setup() {
+  pinMode(PIN_LEDG, OUTPUT);
+  pinMode(PIN_LEDB, OUTPUT);
+  pinMode(PIN_LEDR, OUTPUT);
+  pinMode(PIN_PUSH, INPUT_PULLUP);    // 버튼 핀을 읽기 모드로 
 }
 
 void loop() {
+  int horizontal  = analogRead(PIN_X);
+  int vertical    = analogRead(PIN_Y);
+  int select      = digitalRead(PIN_PUSH);     // 버튼, 눌렀을 때 = LOW, 뗐을 때 = HIGH
+
+  if(select == LOW) // 버튼, 눌렀을 때 = LOW
+  {
+    PlaySong();
+  }
+
+  if(0 == horizontal)
+  {
+    if(52 == (vertical+5)/10)
+    {
+      digitalWrite(PIN_LEDG, HIGH);
+    }
+  }
+  else if(1023 == horizontal)
+  {
+    if(52 == (vertical+5)/10)
+    {
+      digitalWrite(PIN_LEDB, HIGH);
+    }
+  }
+  else if(49 == horizontal/10)
+  {
+    if(0 == vertical)
+    {
+      digitalWrite(PIN_LEDR, HIGH);
+    }
+    else if(1023 == vertical)
+    {
+      digitalWrite(PIN_LEDR, HIGH);
+      digitalWrite(PIN_LEDG, HIGH);
+      digitalWrite(PIN_LEDB, HIGH);
+    }
+  }
+  if(49 == horizontal/10)
+  {
+    if(52 == (vertical+5)/10)
+    {
+      digitalWrite(PIN_LEDR, LOW);
+      digitalWrite(PIN_LEDG, LOW);
+      digitalWrite(PIN_LEDB, LOW);
+    }
+  }
   
-  int vertical, horizontal, select;
-  vertical = analogRead(A0);   // x축 = 0-1023
-  horizontal = analogRead(A1); // y축 = 0-1023
-  select = digitalRead(6);     // 버튼, 눌렀을 때 = LOW, 뗐을 때 = HIGH
+  delay(100);
+}
 
-  Serial.print("X = ");
-  Serial.print(vertical);
-  Serial.print(", Y = ");
-  Serial.print(horizontal);
-  Serial.print(", Button = ");
-
-  if (vertical == 1023)
+void PlaySong()
+{
+  for (int note = 0; note < arraySize; note ++)
   {
-    digitalWrite(blue,1);
-    digitalWrite(green,1);
-    digitalWrite(red,1);
+    int duration = 1000/noteDurations[note];
+    tone(PIN_SPK, melody[note], duration);
+ 
+    delay(duration+30);
   }
-  else if ( horizontal == 1023)
-  {
-    digitalWrite(blue,1);
-    digitalWrite(green,0);
-    digitalWrite(red,0);
-  }
-  else if ( horizontal == 0)
-  {
-    digitalWrite(blue,0);
-    digitalWrite(green,1);
-    digitalWrite(red,0);
-  }
-  else if ( vertical == 0)
-  {
-    digitalWrite(blue,0);
-    digitalWrite(green,0);
-    digitalWrite(red,1);
-  }
-  else
-  {
-    digitalWrite(blue,0);
-    digitalWrite(green,0);
-    digitalWrite(red,0);
-  }
-
-
-  if(select == HIGH) {
-    Serial.println("not pressed");
-    
-  } else {
-    Serial.println("PRESSED!");
-    tone(PinSpk, BEEP_NUM, 30);
-    delay(180);
-  }
-  delay(200);
 }
